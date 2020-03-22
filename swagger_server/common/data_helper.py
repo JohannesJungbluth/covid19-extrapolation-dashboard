@@ -10,12 +10,23 @@ def parse_time_lines_to_df(time_line_data, col_name):
     return df[["timestamp", col_name]]
 
 
+def extrapolate_value(series):
+    # extrapolate value by calculating mean delta factor of last 3 rows
+    factor = (series.tail(3) / series.shift(1).tail(3)).mean()
+    if math.isnan(factor):
+        factor = 0
+    if math.isinf(factor):
+        # see https://web.br.de/interaktiv/corona-simulation/
+        factor = 3
+    return int(factor * series.iloc[-1])
+
+
 def extrapolate_social_distancing(series, social_distancing=False):
     # see https://www.itv.com/news/2020-03-21/coronavirus-why-social-distancing-works/
     if social_distancing:
-        factor = 3
-    else:
         factor = 2
+    else:
+        factor = 3
     return int(factor * series.iloc[-1])
 
 
@@ -23,11 +34,14 @@ def extrapolate_values_for_days(df, number_of_days):
     for _ in range(number_of_days):
         extra_day = (pd.Timestamp(df.iloc[-1]["timestamp"]) + pd.Timedelta("1 days")).isoformat()
         extra_day = extra_day[:-6] + "Z"
-        extrapolated_values = {
-            "timestamp": extra_day,
-            "social_distancing": extrapolate_social_distancing(df["confirmed"], True),
-            "without_social_distancing": extrapolate_social_distancing(df["confirmed"], False)
-        }
+        extrapolated_values = {"timestamp": extra_day}
+        for col_name in df.columns:
+            if (col_name != "timestamp" and col_name != "social_distancing"
+                    and col_name != "without_social_distancing" and col_name != "country"):
+                extrapolated_values[col_name] = extrapolate_value(df[col_name])
+        extrapolated_values["social_distancing"] = extrapolate_social_distancing(df["social_distancing"], True)
+        extrapolated_values["without_social_distancing"] = extrapolate_social_distancing(
+            df["without_social_distancing"], False)
         df = df.append(extrapolated_values, ignore_index=True)
     return df
 
@@ -95,8 +109,6 @@ def get_all_extrapolated(data_cache, extrapolation_days=3, selected_countries=[]
 
     df_timestamp = df_countries.groupby("timestamp").sum()
 
-    df_timestamp["Estimated cases 0.5%"] = df_timestamp["deaths"] / 0.005
-    df_timestamp["Estimated cases 4.0%"] = df_timestamp["deaths"] / 0.04
     df_timestamp["social_distancing"] = df_timestamp["confirmed"]
     df_timestamp["without_social_distancing"] = df_timestamp["confirmed"]
 
@@ -119,8 +131,9 @@ def get_by_country(data_cache, extrapolation_days=3, selected_countries=[], excl
     country_total_dfs = []
     for country in df_countries["country"].unique():
         df_country = df_countries.loc[df_countries["country"] == country]
-        df_country["social_distancing"] = df_country["confirmed"]
-        df_country["without_social_distancing"] = df_country["confirmed"]
+
+        df_country.loc[:, "social_distancing"] = df_country["confirmed"]
+        df_country.loc[:, "without_social_distancing"] = df_country["confirmed"]
 
         extrapolated_values = extrapolate_values_for_days(df_country, extrapolation_days)
 
