@@ -108,7 +108,10 @@ function App() {
           <Row style={{ height: '.5em' }}></Row>
           <Row gutter={8} style={{ paddingLeft: '.5em', paddingRight: '.5em' }}>
             <Col span={24}>
-              <WorldChart filterValues={filterValues}></WorldChart>
+              <WorldChart
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
+              ></WorldChart>
             </Col>
           </Row>
         </Content>

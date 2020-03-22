@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import { Card, Spin } from 'antd'
+import { Card, Spin, Popover, Button } from 'antd'
 import { DateTime } from 'luxon'
 
 const LineChart = ({
@@ -106,7 +106,11 @@ const LineChart = ({
     legend: {
       data: axisData.yAxisData
         .map(({ name }) => name)
-        .filter(name => name !== 'timestamp' && name !== 'Extrapolation')
+        .filter(name => name !== 'timestamp' && name !== 'Extrapolation'),
+      selected: {
+        'Estimated confirmed 0.5%': false,
+        'Estimated confirmed 4.0%': false
+      }
     },
     series: axisData.yAxisData.map(({ series, markArea, name }) => ({
       name,
@@ -167,6 +171,22 @@ const LineChart = ({
     ]
   }
 
+  const toolTipContent = (
+    <Fragment>
+      <p>
+        <b>Estimated Confirmed:</b>
+      </p>
+      is calculated by taking the deaths as a base value and calculating the
+      <br />
+      number of infected by using a deathrate of 0.5% or 4.0%. This shows a more
+      <br />
+      realistic number of infections, since the number of deaths is the most
+      <br />
+      reliable number. Click on the metric on top of the chart to see the
+      values.
+    </Fragment>
+  )
+
   return (
     <Fragment>
       <Spin spinning={isLoading} size="large">
@@ -174,6 +194,16 @@ const LineChart = ({
           hoverable
           title="Infections and deaths of all countries"
           size="small"
+          extra={
+            <Popover
+              placement="leftTop"
+              title="Metrics Help"
+              content={toolTipContent}
+              trigger="hover"
+            >
+              <Button size="small">Metrics Help</Button>
+            </Popover>
+          }
         >
           <ReactEcharts
             option={chartOptions}
