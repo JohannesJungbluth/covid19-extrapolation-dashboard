@@ -6,7 +6,7 @@ import _ from 'lodash'
 const { Option } = Select
 require('echarts/map/js/world.js')
 
-const WorldChart = ({ filterValues, height = 700 }) => {
+const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
   const metrics = ['Active', 'Confirmed', 'Deaths', 'Recovered']
   const [selectedMetric, setSelectedMetric] = useState('Confirmed')
   const [isExtrapolated, setIsExtrapolated] = useState(false)
@@ -95,9 +95,24 @@ const WorldChart = ({ filterValues, height = 700 }) => {
   }
 
   useEffect(() => {
-    fetchData()
+    const timer = setTimeout(() => {
+      fetchData()
+    }, 1000)
+    return () => clearTimeout(timer)
     // eslint-disable-next-line
-  }, [selectedMetric])
+  }, [selectedMetric, filterValues.extrapolatedDays])
+
+  const onChartEvents = {
+    click: e => {
+      console.log('e.name: ', e.name)
+      let name = e.name
+      if (name === 'United States') name = 'US'
+      setFilterValues({
+        ...filterValues,
+        selectedCountries: [name]
+      })
+    }
+  }
 
   return (
     <Spin spinning={isLoading} size="large">
@@ -131,6 +146,7 @@ const WorldChart = ({ filterValues, height = 700 }) => {
           notMerge={true}
           lazyUpdate={true}
           style={{ height, width: '100%' }}
+          onEvents={onChartEvents}
         />
       </Card>
     </Spin>
