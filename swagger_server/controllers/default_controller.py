@@ -19,8 +19,7 @@ def all_get(extrapolation_days=None, selected_countries=None, excluded_countries
     return data_helper.get_all_extrapolated(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries)
 
 
-def by_country_get(extrapolation_days=None, selected_countries=None, excluded_countries=None,
-                   metric=None):
+def by_country_get(extrapolation_days=None, selected_countries=None, excluded_countries=None):
     """Timeline data for all countries
 
      # noqa: E501
@@ -31,9 +30,7 @@ def by_country_get(extrapolation_days=None, selected_countries=None, excluded_co
     :type selected_countries: List[str]
     :param excluded_countries: 
     :type excluded_countries: List[str]
-    :param metric: 
-    :type metric: str
 
     :rtype: List[InlineResponse2001]
     """
-    return data_helper.get_by_country(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries, metric)
+    return data_helper.get_by_country(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries)

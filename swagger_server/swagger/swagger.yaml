@@ -79,14 +79,6 @@ paths:
           type: array
           items:
             type: string
-      - name: metric
-        in: query
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-          default: Confirmed
       responses:
         "200":
           description: Success
