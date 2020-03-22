@@ -7,12 +7,23 @@ const { Option } = Select
 require('echarts/map/js/world.js')
 
 const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
-  const metrics = ['Active', 'Confirmed', 'Deaths', 'Recovered']
+  const metrics = [
+    'Active',
+    'Confirmed',
+    'Deaths',
+    'Recovered',
+    'Extrapolated Active',
+    'Extrapolated Confirmed',
+    'Extrapolated Deaths',
+    'Extrapolated Recovered',
+    'Extrapolated Social Distancing Confirmed',
+    'Extrapolated Without Social Distancing Confirmed'
+  ]
   const [selectedMetric, setSelectedMetric] = useState('Confirmed')
-  const [isExtrapolated, setIsExtrapolated] = useState(false)
-  const [isSocialDistancing, setIsSocialDistancing] = useState(false)
+  // const [isExtrapolated, setIsExtrapolated] = useState(false)
+  // const [isSocialDistancing, setIsSocialDistancing] = useState(false)
   const [countryData, setCountryData] = useState([])
-  const [maxValue, setMaxValue] = useState({ extr: 10, curr: 10 })
+  const [maxValue, setMaxValue] = useState(10)
   const [isLoading, setIsLoading] = useState(false)
 
   const chartOptions = {
@@ -20,7 +31,7 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
     visualMap: {
       left: 'right',
       min: 1,
-      max: isExtrapolated ? maxValue.extr : maxValue.curr,
+      max: maxValue,
       inRange: {
         color: [
           '#313695',
@@ -61,12 +72,18 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
         //   { name: 'Germany', value: 15000 },
         //   { name: 'Italy', value: 40000 }
         // ],
-        data: countryData.map(doc => ({
-          name: doc.country === 'US' ? 'United States' : doc.country,
-          value: isExtrapolated
-            ? doc.extrapolated_metric_value
-            : doc.metric_value
-        }))
+        data: countryData.map(doc => {
+          let key = _.snakeCase(selectedMetric)
+          if (key === 'extrapolated_without_social_distancing_confirmed') {
+            key = 'extrapolated_without_social_distancing'
+          } else if (key === 'extrapolated_social_distancing_confirmed') {
+            key = 'extrapolated_social_distancing'
+          }
+          return {
+            name: doc.country === 'US' ? 'United States' : doc.country,
+            value: doc[key]
+          }
+        })
       }
     ]
   }
@@ -80,14 +97,8 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
           metric: selectedMetric.toLowerCase()
         }
       })
+      console.log('data: ', data)
       setCountryData(data)
-      const maxCurr = _.maxBy(data, 'metric_value').metric_value
-      const maxExtr = _.maxBy(data, 'extrapolated_metric_value')
-        .extrapolated_metric_value
-      setMaxValue({
-        curr: maxCurr,
-        extr: maxExtr
-      })
       setIsLoading(false)
     } catch (err) {
       console.log('Err fetching data by_country: ', err.message)
@@ -96,12 +107,27 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
   }
 
   useEffect(() => {
+    if (!countryData.length) return
+    let key = _.snakeCase(selectedMetric)
+    console.log('key: ', key)
+    if (key === 'extrapolated_without_social_distancing_confirmed') {
+      key = 'extrapolated_without_social_distancing'
+    } else if (key === 'extrapolated_social_distancing_confirmed') {
+      key = 'extrapolated_social_distancing'
+    }
+    const max = _.maxBy(countryData, key)[key]
+    console.log('max: ', max)
+    setMaxValue(max)
+    // eslint-disable-next-line
+  }, [selectedMetric, countryData])
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       fetchData()
     }, 1000)
     return () => clearTimeout(timer)
     // eslint-disable-next-line
-  }, [selectedMetric, filterValues.extrapolatedDays])
+  }, [filterValues.extrapolatedDays])
 
   const onChartEvents = {
     click: e => {
@@ -123,23 +149,23 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
         size="small"
         extra={
           <Fragment>
-            Extrapolated:&nbsp;&nbsp;
-            <Switch
-              onChange={value => setIsExtrapolated(value)}
-              checked={isExtrapolated}
-            />
-            &nbsp;&nbsp;Social Distancing:&nbsp;&nbsp;
-            <Switch
-              onChange={value => setIsSocialDistancing(value)}
-              checked={isSocialDistancing}
-              disabled={!isExtrapolated}
-            />
+            {/* Extrapolated:&nbsp;&nbsp; */}
+            {/* <Switch */}
+            {/*   onChange={value => setIsExtrapolated(value)} */}
+            {/*   checked={isExtrapolated} */}
+            {/* /> */}
+            {/* &nbsp;&nbsp;Social Distancing:&nbsp;&nbsp; */}
+            {/* <Switch */}
+            {/*   onChange={value => setIsSocialDistancing(value)} */}
+            {/*   checked={isSocialDistancing} */}
+            {/*   disabled={!isExtrapolated} */}
+            {/* /> */}
             &nbsp;&nbsp; Select Metric:&nbsp;&nbsp;
             <Select
               placeholder="Select metric..."
               onChange={value => setSelectedMetric(value)}
               value={selectedMetric}
-              style={{ width: '10em' }}
+              style={{ width: '20em' }}
             >
               {metrics.map(metric => (
                 <Option key={metric}>{metric}</Option>

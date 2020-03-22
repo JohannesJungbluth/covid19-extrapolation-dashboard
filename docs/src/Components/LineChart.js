@@ -108,8 +108,9 @@ const LineChart = ({
         .map(({ name }) => name)
         .filter(name => name !== 'timestamp' && name !== 'Extrapolation'),
       selected: {
-        'Estimated confirmed 0.5%': false,
-        'Estimated confirmed 4.0%': false
+        Active: false,
+        Deaths: false,
+        Recovered: false
       }
     },
     series: axisData.yAxisData.map(({ series, markArea, name }) => ({

@@ -1,5 +1,4 @@
 {
-  "homepage": "http://JohannesJungbluth.github.io/covid19-extrapolation-dashboard",
   "name": "ui",
   "version": "0.1.0",
   "private": true,
@@ -43,6 +42,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/compat-data": "^7.8.0",
     "gh-pages": "^2.2.0"
   }
 }
