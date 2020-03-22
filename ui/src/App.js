@@ -52,6 +52,7 @@ function App() {
       setIsLoading(false)
     } catch (err) {
       console.error('Error while fetching data: ', err.message)
+      setIsLoading(false)
     }
   }
 

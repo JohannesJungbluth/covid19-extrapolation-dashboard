@@ -10,6 +10,7 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
   const metrics = ['Active', 'Confirmed', 'Deaths', 'Recovered']
   const [selectedMetric, setSelectedMetric] = useState('Confirmed')
   const [isExtrapolated, setIsExtrapolated] = useState(false)
+  const [isSocialDistancing, setIsSocialDistancing] = useState(false)
   const [countryData, setCountryData] = useState([])
   const [maxValue, setMaxValue] = useState({ extr: 10, curr: 10 })
   const [isLoading, setIsLoading] = useState(false)
@@ -126,6 +127,12 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
             <Switch
               onChange={value => setIsExtrapolated(value)}
               checked={isExtrapolated}
+            />
+            &nbsp;&nbsp;Social Distancing:&nbsp;&nbsp;
+            <Switch
+              onChange={value => setIsSocialDistancing(value)}
+              checked={isSocialDistancing}
+              disabled={!isExtrapolated}
             />
             &nbsp;&nbsp; Select Metric:&nbsp;&nbsp;
             <Select
