@@ -172,7 +172,7 @@ const LineChart = ({
       <Spin spinning={isLoading} size="large">
         <Card
           hoverable
-          title="Infetions and deaths of all countries"
+          title="Infections and deaths of all countries"
           size="small"
         >
           <ReactEcharts

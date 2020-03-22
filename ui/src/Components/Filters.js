@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Select, Row, Col, Form, Card, Switch, InputNumber } from 'antd'
+import allCountries from '../all-countries'
 const { Option } = Select
 
-const StockChart = ({ filterValues, setFilterValues }) => {
-  const allCountries = ['Germany', 'USA', 'China', 'Italy']
+const Filters = ({ filterValues, setFilterValues }) => {
   const size = 'small'
   const style = {
     marginBottom: 0,
@@ -97,4 +97,4 @@ const StockChart = ({ filterValues, setFilterValues }) => {
   )
 }
 
-export default StockChart
+export default Filters
