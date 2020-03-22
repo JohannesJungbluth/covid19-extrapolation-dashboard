@@ -58,8 +58,16 @@ def parse_2_json_map_chart_output(df):
     for row in df.itertuples():
         countries_json.append({
             "country": row[1],
-            "metric_value": row[2],
-            "extrapolated_metric_value": row[3]
+            "active": row[2],
+            "confirmed": row[3],
+            "deaths": row[4],
+            "recovered": row[5],
+            "extrapolated_active": row[6],
+            "extrapolated_confirmed": row[7],
+            "extrapolated_deaths": row[8],
+            "extrapolated_recovered": row[9],
+            "extrapolated_social_distancing": row[10],
+            "extrapolated_without_social_distancing": row[11]
         })
     return countries_json
 
@@ -143,12 +151,12 @@ def get_by_country(data_cache, extrapolation_days=3, selected_countries=[], excl
             "confirmed": [df_country["confirmed"].iloc[-1]],
             "deaths": [df_country["deaths"].iloc[-1]],
             "recovered": [df_country["recovered"].iloc[-1]],
-            "extrapolated_active": [extrapolated_values["active"]],
-            "extrapolated_confirmed": [extrapolated_values["confirmed"]],
-            "extrapolated_deaths": [extrapolated_values["deaths"]],
-            "extrapolated_recovered": [extrapolated_values["recovered"]],
-            "extrapolated_social_distancing": [extrapolated_values["social_distancing"]],
-            "extrapolated_without_social_distancing": [extrapolated_values["without_social_distancing"]]}
+            "extrapolated_active": [extrapolated_values["active"].iloc[-1]],
+            "extrapolated_confirmed": [extrapolated_values["confirmed"].iloc[-1]],
+            "extrapolated_deaths": [extrapolated_values["deaths"].iloc[-1]],
+            "extrapolated_recovered": [extrapolated_values["recovered"].iloc[-1]],
+            "extrapolated_social_distancing": [extrapolated_values["social_distancing"].iloc[-1]],
+            "extrapolated_without_social_distancing": [extrapolated_values["without_social_distancing"].iloc[-1]]}
         ))
 
     df_countries_total = pd.concat(country_total_dfs)
