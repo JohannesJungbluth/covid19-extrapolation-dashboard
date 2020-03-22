@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import connexion
+import os
 
 from swagger_server import encoder
 
