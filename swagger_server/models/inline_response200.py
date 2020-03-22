@@ -6,6 +6,7 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.inline_response200_y_series import InlineResponse200YSeries  # noqa: F401,E501
 from swagger_server import util
 
 
@@ -14,17 +15,17 @@ class InlineResponse200(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, x_timestamps: List[int]=None, y_series: List[object]=None):  # noqa: E501
+    def __init__(self, x_timestamps: List[int]=None, y_series: InlineResponse200YSeries=None):  # noqa: E501
         """InlineResponse200 - a model defined in Swagger
 
         :param x_timestamps: The x_timestamps of this InlineResponse200.  # noqa: E501
         :type x_timestamps: List[int]
         :param y_series: The y_series of this InlineResponse200.  # noqa: E501
-        :type y_series: List[object]
+        :type y_series: InlineResponse200YSeries
         """
         self.swagger_types = {
             'x_timestamps': List[int],
-            'y_series': List[object]
+            'y_series': InlineResponse200YSeries
         }
 
         self.attribute_map = {
@@ -67,22 +68,22 @@ class InlineResponse200(Model):
         self._x_timestamps = x_timestamps
 
     @property
-    def y_series(self) -> List[object]:
+    def y_series(self) -> InlineResponse200YSeries:
         """Gets the y_series of this InlineResponse200.
 
 
         :return: The y_series of this InlineResponse200.
-        :rtype: List[object]
+        :rtype: InlineResponse200YSeries
         """
         return self._y_series
 
     @y_series.setter
-    def y_series(self, y_series: List[object]):
+    def y_series(self, y_series: InlineResponse200YSeries):
         """Sets the y_series of this InlineResponse200.
 
 
         :param y_series: The y_series of this InlineResponse200.
-        :type y_series: List[object]
+        :type y_series: InlineResponse200YSeries
         """
 
         self._y_series = y_series

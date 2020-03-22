@@ -52,7 +52,8 @@ def extrapolate_values_for_days(df, number_of_days):
 def parse_2_json_line_chart_output(df):
     y_series = {}
     for col_name in df.columns.tolist():
-        y_series[col_name] = df[col_name].tolist()
+        if col_name != "timestamp":
+            y_series[col_name] = df[col_name].tolist()
     return {"xTimestamps": df["timestamp"].tolist(), "ySeries": y_series}
 
 
