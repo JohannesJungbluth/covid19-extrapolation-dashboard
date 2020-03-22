@@ -104,6 +104,10 @@ def get_all_extrapolated(api, extrapolation_days=3, selected_countries="", exclu
     df_countries = df_countries.reset_index(drop=True)
 
     df_timestamp = df_countries.groupby("timestamp").sum()
+
+    df_timestamp["Estimated confirmed 0.5%"] = df_timestamp["deaths"] / 0.005
+    df_timestamp["Estimated confirmed 4.0%"] = df_timestamp["deaths"] / 0.04
+
     df_timestamp = df_timestamp.reset_index()
     df_timestamp = df_timestamp.rename(columns={"index": "timestamp"})
 
