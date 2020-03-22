@@ -165,7 +165,7 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
               placeholder="Select metric..."
               onChange={value => setSelectedMetric(value)}
               value={selectedMetric}
-              style={{ width: '20em' }}
+              style={{ width: '30em' }}
             >
               {metrics.map(metric => (
                 <Option key={metric}>{metric}</Option>

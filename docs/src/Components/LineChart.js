@@ -17,15 +17,17 @@ const LineChart = ({
 
   const getLineColor = name => {
     if (name === 'Deaths') {
-      return '#820014'
+      return '#000000'
     } else if (name === 'Recovered') {
-      return '#52c41a'
+      return '#13c2c2'
     } else if (name === 'Active') {
-      return '#f5222d'
+      return '#fa8c16'
     } else if (name === 'Confirmed') {
       return '#fadb14'
     } else if (name === 'Extrapolation') {
       return '#bfbfbf'
+    } else if (name === 'Confirmed with social distancing') {
+      return '#52c41a'
     }
   }
 

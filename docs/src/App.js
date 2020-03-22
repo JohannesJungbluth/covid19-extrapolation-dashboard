@@ -41,6 +41,7 @@ function App() {
           : undefined
       }
       console.log('params: ', params)
+      // const { data } = await axios.get('http://3.127.148.241:8080/all', {
       const { data } = await axios.get('http://localhost:8080/all', {
         params
         // paramsSerializer: params => {
