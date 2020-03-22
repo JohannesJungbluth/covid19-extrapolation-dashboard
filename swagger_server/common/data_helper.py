@@ -80,31 +80,31 @@ def get_df_country(df, country):
     province_dfs = []
     for row in df.itertuples():
         df_province = get_df_province(row[8])
-        df_province["country"] = country
         province_dfs.append(df_province)
 
     df_country = pd.concat(province_dfs)
     df_country = df_country.sort_values("timestamp")
     df_timestamp = df_country.groupby("timestamp").sum()
     df_timestamp = df_timestamp.reset_index()
+    df_timestamp["country"] = country
     return df_timestamp.rename(columns={"index": "timestamp"})
 
 
-def get_all_extrapolated(api, extrapolation_days=3, selected_countries="", excluded_countries=""):
-    response = api.get_all(time_lines=True)
-    df_response = pd.DataFrame.from_dict(response["locations"])
+def filter_df_countries(df, selected_countries=[], excluded_countries=[]):
+    if not excluded_countries:
+        excluded_countries = []
+    excludes_filter = df["country"].isin(excluded_countries)
 
-    country_dfs = []
-    for country in df_response["country"].unique():
-        if excluded_countries and country in excluded_countries:
-            continue
-        if not selected_countries or (selected_countries and country in selected_countries):
-            df_country = df_response.loc[df_response["country"] == country]
-            df_country = get_df_country(df_country, country)
-            country_dfs.append(df_country)
+    if not selected_countries:
+        return df.loc[~excludes_filter]
+    includes_filter = df["country"].isin(selected_countries)
 
-    df_countries = pd.concat(country_dfs)
-    df_countries = df_countries.reset_index(drop=True)
+    return df.loc[~excludes_filter & includes_filter]
+
+
+def get_all_extrapolated(data_cache, extrapolation_days=3, selected_countries=[], excluded_countries=[]):
+    df_countries = data_cache.get_df_countries()
+    df_countries = filter_df_countries(df_countries, selected_countries, excluded_countries)
 
     df_timestamp = df_countries.groupby("timestamp").sum()
 
@@ -123,27 +123,23 @@ def get_all_extrapolated(api, extrapolation_days=3, selected_countries="", exclu
     return parse_2_json_line_chart_output(df_extrapolated)
 
 
-def get_by_country(api, extrapolation_days=3, selected_countries="", excluded_countries="", metric="confirmed"):
-    response = api.get_all(time_lines=True)
-    df_response = pd.DataFrame.from_dict(response["locations"])
+def get_by_country(data_cache, extrapolation_days=3, selected_countries=[], excluded_countries=[], metric="confirmed"):
+    df_countries = data_cache.get_df_countries()
+    df_countries = filter_df_countries(df_countries, selected_countries, excluded_countries)
 
-    country_dfs = []
-    for country in df_response["country"].unique():
-        if excluded_countries and country in excluded_countries:
-            continue
-        if not selected_countries or (selected_countries and country in selected_countries):
-            df_country = df_response.loc[df_response["country"] == country]
-            df_country = get_df_country(df_country, country)
+    country_total_dfs = []
+    for country in df_countries["country"].unique():
+        df_country = df_countries.loc[df_countries["country"] == country]
 
-            extrapolated_values = extrapolate_value_for_metric_and_days(df_country, extrapolation_days, metric)
+        extrapolated_values = extrapolate_value_for_metric_and_days(df_country, extrapolation_days, metric)
 
-            country_dfs.append(pd.DataFrame.from_dict({
-                "country": [country],
-                "metric_value": [df_country[metric].iloc[-1]],
-                "extrapolated_metric_value": [extrapolated_values[metric]]}
-            ))
+        country_total_dfs.append(pd.DataFrame.from_dict({
+            "country": [country],
+            "metric_value": [df_country[metric].iloc[-1]],
+            "extrapolated_metric_value": [extrapolated_values[metric]]}
+        ))
 
-    df_countries = pd.concat(country_dfs)
-    df_countries = df_countries.reset_index(drop=True)
+    df_countries_total = pd.concat(country_total_dfs)
+    df_countries_total = df_countries_total.reset_index(drop=True)
 
-    return parse_2_json_map_chart_output(df_countries)
+    return parse_2_json_map_chart_output(df_countries_total)

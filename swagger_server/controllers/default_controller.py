@@ -1,8 +1,7 @@
 from swagger_server.models.inline_response200 import InlineResponse200
-from swagger_server.common import data_helper
-from swagger_server.common.covid19 import COVID19
+from swagger_server.common import data_helper, data_cache
 
-API = COVID19()
+DATA_CACHE = data_cache.DataCache()
 
 
 def all_get(extrapolation_days=None, selected_countries=None, excluded_countries=None):
@@ -17,7 +16,7 @@ def all_get(extrapolation_days=None, selected_countries=None, excluded_countries
 
     :rtype: InlineResponse200
     """
-    return data_helper.get_all_extrapolated(API, extrapolation_days, selected_countries, excluded_countries)
+    return data_helper.get_all_extrapolated(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries)
 
 
 def by_country_get(extrapolation_days=None, selected_countries=None, excluded_countries=None,
@@ -37,4 +36,4 @@ def by_country_get(extrapolation_days=None, selected_countries=None, excluded_co
 
     :rtype: List[InlineResponse2001]
     """
-    return data_helper.get_by_country(API, extrapolation_days, selected_countries, excluded_countries, metric)
+    return data_helper.get_by_country(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries, metric)
