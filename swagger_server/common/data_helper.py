@@ -24,10 +24,13 @@ def extrapolate_value(series):
 def extrapolate_social_distancing(series, social_distancing=False):
     # see https://www.itv.com/news/2020-03-21/coronavirus-why-social-distancing-works/
     if social_distancing:
-        factor = 2
+        base = 2
     else:
-        factor = 3
-    return int(factor * series.iloc[-1])
+        base = 3
+    if len(series) > 7:
+        return int(series.iloc[-1] * (base ** (1 / 7)))
+    else:
+        return int(series.iloc[-1] * (base ** (1 / 7)))
 
 
 def extrapolate_values_for_days(df, number_of_days):
