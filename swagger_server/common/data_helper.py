@@ -127,7 +127,8 @@ def get_all_extrapolated(data_cache, extrapolation_days=3, selected_countries=[]
 
     df_extrapolated = df_extrapolated.rename(
         columns={"active": "Active", "confirmed": "Confirmed", "deaths": "Deaths",
-                 "recovered": "Recovered"})
+                 "recovered": "Recovered", "social_distancing": "Confirmed with social distancing",
+                 "without_social_distancing": "Confirmed without social distancing"})
 
     return parse_2_json_line_chart_output(df_extrapolated)
 
