@@ -1,0 +1,154 @@
+openapi: 3.0.0
+info:
+  title: Corona Extrapolation Data
+  description: Corona Extrapolation Data
+  version: 0.0.1
+servers:
+- url: http://localhost:3000
+  description: None
+paths:
+  /all:
+    get:
+      summary: Timeline data for all countries
+      operationId: all_get
+      parameters:
+      - name: extrapolation_days
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 3
+      - name: selected_countries
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: excluded_countries
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "400":
+          description: Invalid request
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /by_country:
+    get:
+      summary: Timeline data for all countries
+      operationId: by_country_get
+      parameters:
+      - name: extrapolation_days
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 3
+      - name: selected_countries
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: excluded_countries
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: metric
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: Confirmed
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/inline_response_200_1'
+                x-content-type: application/json
+        "400":
+          description: Invalid request
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+components:
+  schemas:
+    inline_response_200:
+      type: object
+      properties:
+        xTimestamps:
+          type: array
+          items:
+            type: integer
+        ySeries:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              values:
+                type: array
+                items:
+                  type: integer
+            example:
+              values:
+              - 6
+              - 6
+              name: name
+      example:
+        xTimestamps:
+        - 0
+        - 0
+        ySeries:
+        - values:
+          - 6
+          - 6
+          name: name
+        - values:
+          - 6
+          - 6
+          name: name
+    inline_response_200_1:
+      type: object
+      properties:
+        country:
+          type: string
+        metric_value:
+          type: integer
+        extrapolated_metric_value:
+          type: integer
+      example:
+        country: country
+        extrapolated_metric_value: 6
+        metric_value: 0
+
