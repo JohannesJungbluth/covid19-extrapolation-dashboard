@@ -1,11 +1,15 @@
-from swagger_server.models.inline_response200 import InlineResponse200
-from swagger_server.common import data_helper, data_cache
+import connexion
+import six
 
-DATA_CACHE = data_cache.DataCache()
+from swagger_server.models.inline_response200 import InlineResponse200  # noqa: E501
+from swagger_server.models.inline_response2001 import InlineResponse2001  # noqa: E501
+from swagger_server import util
 
 
-def all_get(extrapolation_days=None, selected_countries=None, excluded_countries=None):
-    """Timeline data for all countries
+def all_get(extrapolation_days=None, selected_countries=None, excluded_countries=None):  # noqa: E501
+    """Timeline data for whole world
+
+     # noqa: E501
 
     :param extrapolation_days: 
     :type extrapolation_days: int
@@ -16,11 +20,11 @@ def all_get(extrapolation_days=None, selected_countries=None, excluded_countries
 
     :rtype: InlineResponse200
     """
-    return data_helper.get_all_extrapolated(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries)
+    return 'do some magic!'
 
 
-def by_country_get(extrapolation_days=None, selected_countries=None, excluded_countries=None):
-    """Timeline data for all countries
+def by_country_get(extrapolation_days=None, selected_countries=None, excluded_countries=None):  # noqa: E501
+    """Latest data for every countries
 
      # noqa: E501
 
@@ -33,4 +37,4 @@ def by_country_get(extrapolation_days=None, selected_countries=None, excluded_co
 
     :rtype: List[InlineResponse2001]
     """
-    return data_helper.get_by_country(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries)
+    return 'do some magic!'

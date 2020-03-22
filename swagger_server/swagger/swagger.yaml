@@ -1,15 +1,15 @@
 openapi: 3.0.0
 info:
-  title: Corona Extrapolation Data
-  description: Corona Extrapolation Data
-  version: 0.0.1
+  title: Covid19 Extrapolation Data
+  description: Provides an api for getting uptodate data about Covid19.
+  version: 1.0.0
 servers:
 - url: http://localhost:3000
   description: None
 paths:
   /all:
     get:
-      summary: Timeline data for all countries
+      summary: Timeline data for whole world
       operationId: all_get
       parameters:
       - name: extrapolation_days
@@ -50,7 +50,7 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.default_controller
   /by_country:
     get:
-      summary: Timeline data for all countries
+      summary: Latest data for every countries
       operationId: by_country_get
       parameters:
       - name: extrapolation_days
@@ -102,21 +102,7 @@ components:
           items:
             type: integer
         ySeries:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              values:
-                type: array
-                items:
-                  type: integer
-            example:
-              values:
-              - 6
-              - 6
-              name: name
+          $ref: '#/components/schemas/inline_response_200_ySeries'
       example:
         xTimestamps:
         - 0
@@ -135,12 +121,87 @@ components:
       properties:
         country:
           type: string
-        metric_value:
+        active:
           type: integer
-        extrapolated_metric_value:
+        confirmed:
+          type: integer
+        deaths:
+          type: integer
+        recovered:
+          type: integer
+        extrapolated_active:
+          type: integer
+        extrapolated_confirmed:
+          type: integer
+        extrapolated_deaths:
+          type: integer
+        extrapolated_recovered:
+          type: integer
+        extrapolated_social_distancing:
+          type: integer
+        extrapolated_without_social_distancing:
           type: integer
       example:
         country: country
-        extrapolated_metric_value: 6
-        metric_value: 0
+        recovered: 5
+        extrapolated_deaths: 7
+        extrapolated_social_distancing: 3
+        extrapolated_confirmed: 2
+        extrapolated_without_social_distancing: 2
+        active: 0
+        extrapolated_recovered: 9
+        confirmed: 6
+        deaths: 1
+        extrapolated_active: 5
+    inline_response_200_ySeries:
+      type: object
+      properties:
+        Active:
+          type: array
+          example:
+            values:
+            - 6
+            - 6
+          items:
+            type: integer
+        Confirmed:
+          type: array
+          example:
+            values:
+            - 6
+            - 6
+          items:
+            type: integer
+        Confirmed with social distancing:
+          type: array
+          example:
+            values:
+            - 6
+            - 6
+          items:
+            type: integer
+        Confirmed without social distancing:
+          type: array
+          example:
+            values:
+            - 6
+            - 6
+          items:
+            type: integer
+        Deaths:
+          type: array
+          example:
+            values:
+            - 6
+            - 6
+          items:
+            type: integer
+        Recovered:
+          type: array
+          example:
+            values:
+            - 6
+            - 6
+          items:
+            type: integer
 
