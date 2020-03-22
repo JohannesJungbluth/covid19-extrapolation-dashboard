@@ -15,11 +15,10 @@ def extrapolate_value(series):
     factor = (series.tail(3) / series.shift(1).tail(3)).mean()
     if math.isnan(factor):
         factor = 0
-
     return int(factor * series.iloc[-1])
 
 
-def extrapolate_days(df, number_of_days):
+def extrapolate_values_for_days(df, number_of_days):
     for _ in range(number_of_days):
         extra_day = (pd.Timestamp(df.iloc[-1]["timestamp"]) + pd.Timedelta("1 days")).isoformat()
         extra_day = extra_day[:-6] + "Z"
@@ -28,11 +27,10 @@ def extrapolate_days(df, number_of_days):
             if col_name != "timestamp":
                 extrapolated_values[col_name] = extrapolate_value(df[col_name])
         df = df.append(extrapolated_values, ignore_index=True)
-
     return df
 
 
-def calc_extrapolated_values_for_metric(df, number_of_days, metric):
+def extrapolate_value_for_metric_and_days(df, number_of_days, metric):
     df_extrapolated = df.copy()
     extrapolated_values = {}
     for _ in range(number_of_days):
@@ -41,7 +39,6 @@ def calc_extrapolated_values_for_metric(df, number_of_days, metric):
             if col_name == metric:
                 extrapolated_values[col_name] = extrapolate_value(df_extrapolated[col_name])
         df_extrapolated = df_extrapolated.append(extrapolated_values, ignore_index=True)
-
     return extrapolated_values
 
 
@@ -49,63 +46,48 @@ def parse_2_json_line_chart_output(df):
     y_series = {}
     for col_name in df.columns.tolist():
         y_series[col_name] = df[col_name].tolist()
-
     return {"xTimestamps": df["timestamp"].tolist(), "ySeries": y_series}
 
 
 def parse_2_json_map_chart_output(df):
     countries_json = []
-    for _, row in df.iterrows():
+    for row in df.itertuples():
         countries_json.append({
-            "country": row["country"],
-            "metric_value": row["metric_value"],
-            "extrapolated_metric_value": row["extrapolated_metric_value"]
+            "country": row[1],
+            "metric_value": row[2],
+            "extrapolated_metric_value": row[3]
         })
-
     return countries_json
 
 
-def get_all_extrapolated(api, extrapolation_days, selected_countries, excluded_countries=""):
-    response = api.get_all(time_lines=True)
-    df_response = pd.DataFrame.from_dict(response["locations"])
+def get_df_province(time_lines):
+    confirmed = parse_time_lines_to_df(time_lines, "confirmed")
+    deaths = parse_time_lines_to_df(time_lines, "deaths")
+    recovered = parse_time_lines_to_df(time_lines, "recovered")
 
-    country_dfs = []
-    for _, row in df_response.iterrows():
-        country = row["country"]
-        if excluded_countries and country in excluded_countries:
-            continue
-        if not selected_countries or (selected_countries and country in selected_countries):
-            time_lines = row["timelines"]
+    df_province = confirmed.merge(deaths, how="outer", left_on="timestamp", right_on="timestamp")
+    df_province = df_province.merge(recovered, how="outer", left_on="timestamp", right_on="timestamp")
+    df_province = df_province.fillna(0)
+    df_province["active"] = df_province["confirmed"] - df_province["recovered"] - df_province["deaths"]
 
-            confirmed = parse_time_lines_to_df(time_lines, "confirmed")
-            deaths = parse_time_lines_to_df(time_lines, "deaths")
-            recovered = parse_time_lines_to_df(time_lines, "recovered")
+    return df_province
 
-            df_country = confirmed.merge(deaths, how="outer", left_on="timestamp", right_on="timestamp")
-            df_country = df_country.merge(recovered, how="outer", left_on="timestamp", right_on="timestamp")
-            df_country["active"] = df_country["confirmed"] - df_country["recovered"] - df_country["deaths"]
-            df_country["country"] = country
-            df_country = df_country.fillna(0)
 
-            country_dfs.append(df_country)
+def get_df_country(df, country):
+    province_dfs = []
+    for row in df.itertuples():
+        df_province = get_df_province(row[8])
+        df_province["country"] = country
+        province_dfs.append(df_province)
 
-    df_countries = pd.concat(country_dfs)
-    df_countries = df_countries.reset_index(drop=True)
-
-    df_timestamp = df_countries.groupby("timestamp").sum()
+    df_country = pd.concat(province_dfs)
+    df_country = df_country.sort_values("timestamp")
+    df_timestamp = df_country.groupby("timestamp").sum()
     df_timestamp = df_timestamp.reset_index()
-    df_timestamp = df_timestamp.rename(columns={"index": "timestamp"})
-
-    df_extrapolated = extrapolate_days(df_timestamp, extrapolation_days)
-
-    df_extrapolated = df_extrapolated.rename(
-        columns={"active": "Active", "confirmed": "Confirmed", "deaths": "Deaths",
-                 "recovered": "Recovered"})
-
-    return parse_2_json_line_chart_output(df_extrapolated)
+    return df_timestamp.rename(columns={"index": "timestamp"})
 
 
-def get_by_country(api, extrapolation_days, selected_countries, excluded_countries="", metric="confirmed"):
+def get_all_extrapolated(api, extrapolation_days=3, selected_countries="", excluded_countries=""):
     response = api.get_all(time_lines=True)
     df_response = pd.DataFrame.from_dict(response["locations"])
 
@@ -115,33 +97,42 @@ def get_by_country(api, extrapolation_days, selected_countries, excluded_countri
             continue
         if not selected_countries or (selected_countries and country in selected_countries):
             df_country = df_response.loc[df_response["country"] == country]
-            province_dfs = []
-            for _, row in df_country.iterrows():
-                time_lines = row["timelines"]
+            df_country = get_df_country(df_country, country)
+            country_dfs.append(df_country)
 
-                confirmed = parse_time_lines_to_df(time_lines, "confirmed")
-                deaths = parse_time_lines_to_df(time_lines, "deaths")
-                recovered = parse_time_lines_to_df(time_lines, "recovered")
+    df_countries = pd.concat(country_dfs)
+    df_countries = df_countries.reset_index(drop=True)
 
-                df_province = confirmed.merge(deaths, how="outer", left_on="timestamp", right_on="timestamp")
-                df_province = df_province.merge(recovered, how="outer", left_on="timestamp", right_on="timestamp")
-                df_province = df_province.fillna(0)
-                df_province["active"] = df_province["confirmed"] - df_province["recovered"] - df_province["deaths"]
-                df_province["country"] = row["country"]
+    df_timestamp = df_countries.groupby("timestamp").sum()
+    df_timestamp = df_timestamp.reset_index()
+    df_timestamp = df_timestamp.rename(columns={"index": "timestamp"})
 
-                province_dfs.append(df_province)
+    df_extrapolated = extrapolate_values_for_days(df_timestamp, extrapolation_days)
 
-            df_country = pd.concat(province_dfs)
-            df_country = df_country.sort_values("timestamp")
-            df_timestamp = df_country.groupby("timestamp").sum()
-            df_timestamp = df_timestamp.reset_index()
-            df_timestamp = df_timestamp.rename(columns={"index": "timestamp"})
+    df_extrapolated = df_extrapolated.rename(
+        columns={"active": "Active", "confirmed": "Confirmed", "deaths": "Deaths",
+                 "recovered": "Recovered"})
 
-            extrapolated_values = calc_extrapolated_values_for_metric(df_timestamp, extrapolation_days, metric)
+    return parse_2_json_line_chart_output(df_extrapolated)
+
+
+def get_by_country(api, extrapolation_days=3, selected_countries="", excluded_countries="", metric="confirmed"):
+    response = api.get_all(time_lines=True)
+    df_response = pd.DataFrame.from_dict(response["locations"])
+
+    country_dfs = []
+    for country in df_response["country"].unique():
+        if excluded_countries and country in excluded_countries:
+            continue
+        if not selected_countries or (selected_countries and country in selected_countries):
+            df_country = df_response.loc[df_response["country"] == country]
+            df_country = get_df_country(df_country, country)
+
+            extrapolated_values = extrapolate_value_for_metric_and_days(df_country, extrapolation_days, metric)
 
             country_dfs.append(pd.DataFrame.from_dict({
                 "country": [country],
-                "metric_value": [df_timestamp[metric].iloc[-1]],
+                "metric_value": [df_country[metric].iloc[-1]],
                 "extrapolated_metric_value": [extrapolated_values[metric]]}
             ))
 
