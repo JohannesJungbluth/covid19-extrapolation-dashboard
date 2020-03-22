@@ -184,6 +184,16 @@ const LineChart = ({
       <br />
       reliable number. Click on the metric on top of the chart to see the
       values.
+      <br />
+      <br />
+      Inspiration for this dashboard:{' '}
+      <a
+        href="https://medium.com/@tomaspueyo/coronavirus-act-today-or-people-will-die-f4d3d9cd99ca"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Article
+      </a>
     </Fragment>
   )
 
