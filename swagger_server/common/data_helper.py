@@ -15,6 +15,9 @@ def extrapolate_value(series):
     factor = (series.tail(3) / series.shift(1).tail(3)).mean()
     if math.isnan(factor):
         factor = 0
+    if math.isinf(factor):
+        # see https://web.br.de/interaktiv/corona-simulation/
+        factor = 3
     return int(factor * series.iloc[-1])
 
 
