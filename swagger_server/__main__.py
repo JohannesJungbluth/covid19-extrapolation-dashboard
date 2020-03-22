@@ -12,8 +12,8 @@ def main():
     app.app.json_encoder = encoder.JSONEncoder
     app.add_api("swagger.yaml", arguments={"title": "Corona Extrapolation Data"}, pythonic_params=True)
     CORS(app.app)
-    app.run(port=8080, ssl_context='adhoc')
-    app.run(ssl_context='adhoc')
+    PORT = os.environ.get('PORT')
+    app.run(port=PORT, ssl_context='adhoc')
 
 
 if __name__ == "__main__":
