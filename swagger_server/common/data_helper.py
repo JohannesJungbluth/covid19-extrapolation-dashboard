@@ -116,7 +116,7 @@ def filter_df_countries(df, selected_countries=[], excluded_countries=[]):
 
 
 def get_all_extrapolated(data_cache, extrapolation_days=3, selected_countries=[], excluded_countries=[]):
-    df_countries = data_cache.get_df_countries()
+    df_countries = data_cache.get_df_countries_time_lines()
     df_countries = filter_df_countries(df_countries, selected_countries, excluded_countries)
 
     df_timestamp = df_countries.groupby("timestamp").sum()
@@ -137,16 +137,53 @@ def get_all_extrapolated(data_cache, extrapolation_days=3, selected_countries=[]
     return parse_2_json_line_chart_output(df_extrapolated)
 
 
-def get_by_country(data_cache, extrapolation_days=3, selected_countries=[], excluded_countries=[]):
-    df_countries = data_cache.get_df_countries()
-    df_countries = filter_df_countries(df_countries, selected_countries, excluded_countries)
+def get_total_by_country(df_countries, extrapolation_days=3):
+    df_countries["social_distancing"] = df_countries["confirmed"]
+    df_countries["without_social_distancing"] = df_countries["confirmed"]
 
     country_total_dfs = []
     for country in df_countries["country"].unique():
-        df_country = df_countries.loc[df_countries["country"] == country].copy()
+        df_country = df_countries.loc[df_countries["country"] == country]
 
-        df_country["social_distancing"] = df_country["confirmed"]
-        df_country["without_social_distancing"] = df_country["confirmed"]
+        extrapolated_values = extrapolate_values_for_days(df_country, extrapolation_days)
+
+        country_total_dfs.append(pd.DataFrame.from_dict({
+            "country": [country],
+            "active": [df_country["active"].iloc[-1]],
+            "confirmed": [df_country["confirmed"].iloc[-1]],
+            "deaths": [df_country["deaths"].iloc[-1]],
+            "recovered": [df_country["recovered"].iloc[-1]],
+            "extrapolated_active": [extrapolated_values["active"].iloc[-1]],
+            "extrapolated_confirmed": [extrapolated_values["confirmed"].iloc[-1]],
+            "extrapolated_deaths": [extrapolated_values["deaths"].iloc[-1]],
+            "extrapolated_recovered": [extrapolated_values["recovered"].iloc[-1]],
+            "extrapolated_social_distancing": [extrapolated_values["social_distancing"].iloc[-1]],
+            "extrapolated_without_social_distancing": [extrapolated_values["without_social_distancing"].iloc[-1]]}
+        ))
+
+    df_countries_total = pd.concat(country_total_dfs)
+    df_countries_total = df_countries_total.reset_index(drop=True)
+
+    return df_countries_total
+
+
+def get_total_by_country_filtered(data_cache, selected_countries=[], excluded_countries=[]):
+    df_countries = data_cache.get_df_countries_total_extrapolated_7_days()
+    df_countries = filter_df_countries(df_countries, selected_countries, excluded_countries)
+
+    return parse_2_json_map_chart_output(df_countries)
+
+
+def get_by_country(data_cache, extrapolation_days=3, selected_countries=[], excluded_countries=[]):
+    df_countries = data_cache.get_df_countries_time_lines()
+    df_countries = filter_df_countries(df_countries, selected_countries, excluded_countries)
+
+    df_countries["social_distancing"] = df_countries["confirmed"]
+    df_countries["without_social_distancing"] = df_countries["confirmed"]
+
+    country_total_dfs = []
+    for country in df_countries["country"].unique():
+        df_country = df_countries.loc[df_countries["country"] == country]
 
         extrapolated_values = extrapolate_values_for_days(df_country, extrapolation_days)
 

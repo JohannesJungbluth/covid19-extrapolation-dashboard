@@ -8,7 +8,8 @@ from swagger_server.common import data_helper
 class DataCache:
     def __init__(self):
         self.api = COVID19()
-        self.df_countries = pd.DataFrame()
+        self.df_countries_time_line = pd.DataFrame()
+        self.df_countries_total_extrapolated_7_days = {}
         self.updated = 0
         self.update()
 
@@ -24,12 +25,19 @@ class DataCache:
                 df_country = data_helper.get_df_country(df_country, country)
                 country_dfs.append(df_country)
 
-            self.df_countries = pd.concat(country_dfs)
-            self.df_countries = self.df_countries.sort_values("timestamp")
-            self.df_countries = self.df_countries.reset_index(drop=True)
+            df_countries_time_line = pd.concat(country_dfs)
+            df_countries_time_line = df_countries_time_line.sort_values("timestamp")
+            self.df_countries_time_line = df_countries_time_line.reset_index(drop=True)
+
+            self.df_countries_total_extrapolated_7_days = data_helper.get_total_by_country(self.df_countries_time_line,
+                                                                                           7)
 
             self.updated = time.time()
 
-    def get_df_countries(self):
+    def get_df_countries_time_lines(self):
         self.update()
-        return self.df_countries
+        return self.df_countries_time_line
+
+    def get_df_countries_total_extrapolated_7_days(self):
+        self.update()
+        return self.df_countries_total_extrapolated_7_days

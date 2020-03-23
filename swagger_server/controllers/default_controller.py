@@ -33,4 +33,5 @@ def by_country_get(extrapolation_days=None, selected_countries=None, excluded_co
 
     :rtype: List[InlineResponse2001]
     """
-    return data_helper.get_by_country(DATA_CACHE, extrapolation_days, selected_countries, excluded_countries)
+    # because of performance issues with country number always extrapolate 7 days and load from cache
+    return data_helper.get_total_by_country_filtered(DATA_CACHE, selected_countries, excluded_countries)
