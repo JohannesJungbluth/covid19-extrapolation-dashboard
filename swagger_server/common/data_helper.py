@@ -143,10 +143,10 @@ def get_by_country(data_cache, extrapolation_days=3, selected_countries=[], excl
 
     country_total_dfs = []
     for country in df_countries["country"].unique():
-        df_country = df_countries.loc[df_countries["country"] == country]
+        df_country = df_countries.loc[df_countries["country"] == country].copy()
 
-        df_country.loc[:, "social_distancing"] = df_country["confirmed"]
-        df_country.loc[:, "without_social_distancing"] = df_country["confirmed"]
+        df_country["social_distancing"] = df_country["confirmed"]
+        df_country["without_social_distancing"] = df_country["confirmed"]
 
         extrapolated_values = extrapolate_values_for_days(df_country, extrapolation_days)
 
