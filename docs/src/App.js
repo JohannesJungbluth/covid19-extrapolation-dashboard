@@ -42,7 +42,7 @@ function App() {
       }
       console.log('params: ', params)
       // const { data } = await axios.get('http://3.127.148.241:8080/all', {
-      const { data } = await axios.get('http://localhost:8080/all', {
+      const { data } = await axios.get('https://corona-hackathon.herokuapp.com/all', {
         params
         // paramsSerializer: params => {
         //   return qs.stringify(params)

@@ -91,7 +91,7 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
   const fetchData = async () => {
     try {
       setIsLoading(true)
-      const { data } = await axios.get('http://localhost:8080/by_country', {
+      const { data } = await axios.get('https://corona-hackathon.herokuapp.com/by_country', {
         params: {
           extrapolation_days: filterValues.extrapolatedDays,
           metric: selectedMetric.toLowerCase()

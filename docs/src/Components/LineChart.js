@@ -177,16 +177,11 @@ const LineChart = ({
   const toolTipContent = (
     <Fragment>
       <p>
-        <b>Estimated Confirmed:</b>
+        <b>Social Distancing:</b>
       </p>
-      is calculated by taking the deaths as a base value and calculating the
+      The social distancing values are calculated by assuming that everyone
       <br />
-      number of infected by using a deathrate of 0.5% or 4.0%. This shows a more
-      <br />
-      realistic number of infections, since the number of deaths is the most
-      <br />
-      reliable number. Click on the metric on top of the chart to see the
-      values.
+      reduces their social contacts by a third.
       <br />
       <br />
       Inspiration for this dashboard:{' '}
