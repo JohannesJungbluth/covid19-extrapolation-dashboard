@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import { Card, Select, Switch, Spin } from 'antd'
+import { Card, Select, Spin, Popover, Button } from 'antd'
 import axios from 'axios'
 import _ from 'lodash'
 const { Option } = Select
@@ -91,12 +91,15 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
   const fetchData = async () => {
     try {
       setIsLoading(true)
-      const { data } = await axios.get('https://corona-hackathon.herokuapp.com/by_country', {
-        params: {
-          extrapolation_days: filterValues.extrapolatedDays,
-          metric: selectedMetric.toLowerCase()
+      const { data } = await axios.get(
+        'https://corona-hackathon.herokuapp.com/by_country',
+        {
+          params: {
+            extrapolation_days: filterValues.extrapolatedDays,
+            metric: selectedMetric.toLowerCase()
+          }
         }
-      })
+      )
       console.log('data: ', data)
       setCountryData(data)
       setIsLoading(false)
@@ -141,6 +144,12 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
     }
   }
 
+  const toolTipContent = (
+    <Fragment>
+      The extraploated data is fixed to the next 7 days in this map.
+    </Fragment>
+  )
+
   return (
     <Spin spinning={isLoading} size="large">
       <Card
@@ -166,11 +175,21 @@ const WorldChart = ({ filterValues, setFilterValues, height = 700 }) => {
               onChange={value => setSelectedMetric(value)}
               value={selectedMetric}
               style={{ width: '30em' }}
+              size="small"
             >
               {metrics.map(metric => (
                 <Option key={metric}>{metric}</Option>
               ))}
             </Select>
+            &nbsp;&nbsp;
+            <Popover
+              placement="leftTop"
+              title="Metrics Help"
+              content={toolTipContent}
+              trigger="hover"
+            >
+              <Button size="small">Metrics Help</Button>
+            </Popover>
           </Fragment>
         }
       >
