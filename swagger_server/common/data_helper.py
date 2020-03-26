@@ -92,7 +92,7 @@ def get_df_province(time_lines):
 def get_df_country(df, country):
     province_dfs = []
     for row in df.itertuples():
-        df_province = get_df_province(row[8])
+        df_province = get_df_province(row[9])
         province_dfs.append(df_province)
 
     df_country = pd.concat(province_dfs)
