@@ -26,7 +26,10 @@ class DataCache:
                 country_dfs.append(df_country)
 
             df_countries_time_line = pd.concat(country_dfs)
+            df_countries_time_line = df_countries_time_line.dropna()
             df_countries_time_line = df_countries_time_line.sort_values("timestamp")
+
+            # prevent processing data from cruise ships with missing population or other incomplete data
             self.df_countries_time_line = df_countries_time_line.reset_index(drop=True)
 
             self.df_countries_total_extrapolated_7_days = data_helper.get_total_by_country(self.df_countries_time_line,
