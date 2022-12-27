@@ -1,6 +1,6 @@
 connexion[swagger-ui]
 python_dateutil == 2.8.1
-setuptools == 46.0.0
+setuptools == 65.5.1
 pandas
 flask_cors
 cryptography
